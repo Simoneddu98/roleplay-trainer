@@ -1,113 +1,63 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import ChatWindow from '@/components/chat/ChatWindow';
-import { useAppStore } from '@/store/useStore';
+import { useState, useEffect, useRef } from 'react';
+import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport } from 'ai';
 import { allScenarios } from '@/data/scenarios';
-import { gamificationRules } from '@/data/gamification';
-import { Message } from '@/types';
-
-const botResponses: Record<string, string[]> = {
-  // ─── VENDITA ─────────────────────────────────────────
-  'obiezioni-prezzo': [
-    'Capisco il vostro punto, ma non siamo sicuri che il valore aggiunto giustifichi questa differenza. Potete darmi qualcosa di più concreto?',
-    'Abbiamo un budget limitato per quest\'anno. Se non riuscite ad avvicinarvi al prezzo del competitor, dovrò valutare l\'alternativa.',
-    'Interessante... Se inseriste anche la formazione del team e il supporto dedicato, potremmo riconsiderare. Cosa ne pensate?',
-    'Ok, devo ammetterlo: la vostra proposta sta diventando più convincente. Fatemi un riepilogo finale e ne parlo con il CFO.',
-  ],
-  'feedback-correttivo': [
-    'Ma scusa, il report era complesso e avevo anche altri compiti da portare avanti. Non è colpa mia se c\'era troppo lavoro.',
-    'Ah... non sapevo che ci fossero errori nei dati. Quali dati in particolare? Io li ho controllati...',
-    'Ok capisco, forse avrei dovuto chiedere aiuto prima. Come posso migliorare la prossima volta?',
-    'Grazie per il feedback, apprezzo che tu sia stato diretto. Possiamo impostare un check settimanale così non si ripete?',
-  ],
-  'onboarding-nuovo-assunto': [
-    'Grazie! Sono un po\' nervoso ma davvero entusiasta. Con chi lavorerò principalmente?',
-    'Ah perfetto, sembra un team dinamico! Avete un documento o una wiki dove posso studiare il progetto?',
-    'Ottimo, e per quanto riguarda le riunioni? Ci sono stand-up giornalieri o come vi organizzate?',
-    'Fantastico, mi sento già più tranquillo. Una cosa: a chi posso rivolgermi se ho un dubbio tecnico urgente?',
-  ],
-  // ─── DIGITAL MARKETING & AI ──────────────────────────
-  'strategia-social-cliente': [
-    'Mmh ok, ma io non ho tempo di fare post tutti i giorni... Quanto tempo ci vuole realisticamente? E poi, devo fare le foto professionali o bastano quelle col telefono?',
-    'Interessante l\'idea dei contenuti dietro le quinte. Ma cosa pubblico esattamente? I piatti? Le ricette? Non vorrei svelare i miei segreti...',
-    'Ok mi convince. E per la pubblicità a pagamento? Ho sentito che con 5 euro al giorno si possono raggiungere migliaia di persone, è vero?',
-    'Perfetto, mi piace l\'approccio graduale. Possiamo partire con Instagram e poi vedere. Mi fai un piano per le prime due settimane?',
-  ],
-  'campagna-ai-ads': [
-    'Ma aspetta, quando dici AI intendi che il sistema decide da solo come spendere il budget? Non mi sembra sicuro... E se spende tutto in un giorno?',
-    'Ok, il concetto di smart bidding mi è più chiaro ora. Ma come facciamo a sapere se funziona meglio dell\'approccio manuale che usiamo adesso?',
-    'Ah, quindi possiamo fare un A/B test tra la gestione manuale e quella con AI? Quanto tempo ci serve per avere dati significativi?',
-    'Ottimo, credo di avere abbastanza informazioni per presentarlo al cliente. Puoi preparami una slide con i punti principali e i risultati attesi?',
-  ],
-  'content-strategy-startup': [
-    'Capisco, ma il nostro prodotto è molto tecnico, è un software HR per la gestione delle presenze. Come lo rendiamo interessante sui social? Non è esattamente "sexy" come argomento...',
-    'Il concetto di thought leadership mi piace. Ma chi scrive gli articoli? Io non ho tempo e il dev non sa scrivere... Possiamo usare l\'AI per generare i contenuti?',
-    'Ok, AI come assistente e non come sostituto, ha senso. E per la newsletter? Come facciamo a raccogliere iscritti partendo da zero? Il competitor ha anni di vantaggio.',
-    'Mi piace l\'idea del lead magnet con il template gratuito. Ricapitoliamo: blog SEO-oriented, LinkedIn del CEO, newsletter con lead magnet. Quanto budget serve per partire?',
-  ],
-};
+import { ArrowLeft, Send, Bot, User } from 'lucide-react';
 
 export default function ChatPage() {
   const params = useParams();
   const router = useRouter();
   const scenarioId = params.id as string;
-  const { state, startScenario, addMessage, completeScenario } = useAppStore();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [input, setInput] = useState('');
 
   const scenario = allScenarios.find((s) => s.id === scenarioId);
+  const courseId = scenario?.areaId ?? '';
 
+  const { messages, sendMessage, status } = useChat({
+    id: scenarioId,
+    transport: new DefaultChatTransport({
+      api: '/api/chat',
+      body: { courseId },
+    }),
+    messages: scenario
+      ? scenario.initialMessages
+          .filter((m) => m.role !== 'system')
+          .map((m) => ({
+            id: m.id,
+            role: (m.role === 'bot' ? 'assistant' : 'user') as 'assistant' | 'user',
+            parts: [{ type: 'text' as const, text: m.content }],
+          }))
+      : [],
+  });
+
+  const isStreaming = status === 'streaming' || status === 'submitted';
+
+  // Auto-scroll on new messages
   useEffect(() => {
-    if (!state.currentScenario || state.currentScenario.id !== scenarioId) {
-      if (scenario) {
-        startScenario(scenario);
-      } else {
-        router.push('/');
-      }
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [scenarioId]);
+  }, [messages]);
 
-  const handleSendMessage = (content: string) => {
-    const userMsg: Message = {
-      id: `user-${Date.now()}`,
-      role: 'user',
-      content,
-      timestamp: Date.now(),
-    };
-    addMessage(userMsg);
-
-    const userMsgCount = state.chatMessages.filter((m) => m.role === 'user').length;
-    const responses = botResponses[scenarioId] || [];
-
-    if (userMsgCount < responses.length) {
-      setTimeout(() => {
-        const botMsg: Message = {
-          id: `bot-${Date.now()}`,
-          role: 'bot',
-          content: responses[userMsgCount],
-          timestamp: Date.now(),
-        };
-        addMessage(botMsg);
-
-        if (userMsgCount === responses.length - 1 && scenario) {
-          setTimeout(() => {
-            completeScenario(scenarioId, scenario.xpReward + gamificationRules.xpPerScenarioComplete);
-            const sysMsg: Message = {
-              id: `sys-${Date.now()}`,
-              role: 'system',
-              content: `Scenario completato! Hai guadagnato ${scenario.xpReward + gamificationRules.xpPerScenarioComplete} XP. Torna alla dashboard per vedere i tuoi progressi.`,
-              timestamp: Date.now(),
-            };
-            addMessage(sysMsg);
-          }, 500);
-        }
-      }, 1200);
+  // Redirect if scenario not found
+  useEffect(() => {
+    if (!scenario) {
+      router.push('/');
     }
+  }, [scenario, router]);
+
+  const handleSend = () => {
+    const trimmed = input.trim();
+    if (!trimmed || isStreaming) return;
+    sendMessage({ text: trimmed });
+    setInput('');
   };
 
-  const backUrl = scenario ? `/area/${scenario.areaId}` : '/';
-
-  if (!state.currentScenario) {
+  if (!scenario) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <p className="text-slate-500">Caricamento scenario...</p>
@@ -115,14 +65,101 @@ export default function ChatPage() {
     );
   }
 
+  const backUrl = `/area/${scenario.areaId}`;
+
   return (
-    <div className="h-screen">
-      <ChatWindow
-        messages={state.chatMessages}
-        onSendMessage={handleSendMessage}
-        scenarioTitle={state.currentScenario.title}
-        onBack={() => router.push(backUrl)}
-      />
+    <div className="flex flex-col h-screen bg-slate-50">
+      {/* Header */}
+      <div className="flex items-center gap-3 px-4 py-3 bg-white border-b border-slate-200 shrink-0">
+        <button
+          onClick={() => router.push(backUrl)}
+          className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors cursor-pointer"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+        <div>
+          <h2 className="text-sm font-semibold text-slate-900">{scenario.title}</h2>
+          <p className="text-xs text-slate-500">
+            {isStreaming ? 'Sta scrivendo...' : 'Simulazione in corso'}
+          </p>
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto chat-scroll px-4 py-6">
+        {/* System context message */}
+        {scenario.initialMessages
+          .filter((m) => m.role === 'system')
+          .map((m) => (
+            <div key={m.id} className="flex justify-center my-4 animate-fade-in-up">
+              <p className="text-xs text-slate-400 italic bg-slate-100 px-4 py-2 rounded-full max-w-md text-center">
+                {m.content}
+              </p>
+            </div>
+          ))}
+
+        {messages.map((msg) => {
+          const isUser = msg.role === 'user';
+          const textContent = msg.parts
+            .filter((p): p is { type: 'text'; text: string } => p.type === 'text')
+            .map((p) => p.text)
+            .join('');
+
+          if (!textContent) return null;
+
+          return (
+            <div
+              key={msg.id}
+              className={`flex gap-3 mb-4 animate-fade-in-up ${isUser ? 'flex-row-reverse' : ''}`}
+            >
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1
+                  ${isUser ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600'}`}
+              >
+                {isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+              </div>
+              <div
+                className={`max-w-[75%] px-4 py-3 text-sm leading-relaxed
+                  ${isUser
+                    ? 'bg-indigo-600 text-white rounded-2xl rounded-br-md'
+                    : 'bg-white text-slate-900 border border-slate-200 rounded-2xl rounded-bl-md'
+                  }`}
+              >
+                {textContent}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Input */}
+      <div className="shrink-0 flex items-end gap-3 p-4 border-t border-slate-200 bg-white">
+        <textarea
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleSend();
+            }
+          }}
+          placeholder="Scrivi la tua risposta..."
+          disabled={isStreaming}
+          rows={1}
+          className="flex-1 resize-none rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-900
+            placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+            disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+        />
+        <button
+          onClick={handleSend}
+          disabled={!input.trim() || isStreaming}
+          className="shrink-0 w-11 h-11 rounded-xl bg-indigo-600 text-white flex items-center justify-center
+            hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-40 disabled:cursor-not-allowed
+            transition-all duration-200 cursor-pointer"
+        >
+          <Send className="w-4 h-4" />
+        </button>
+      </div>
     </div>
   );
 }
