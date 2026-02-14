@@ -1,0 +1,65 @@
+---
+description: Comprehensive UI/UX design guidelines for creating professional, modern, and accessible interfaces.
+globs: ["**/*.tsx", "**/*.jsx", "**/*.css", "**/*.html"]
+---
+# UX/UI Pro Max Skill
+
+This skill ensures all generated UI code adheres to professional design standards, modern aesthetics, and strict accessibility guidelines.
+
+## 1. Core Design Philosophy
+- **Modern & Clean**: Prioritize clean lines, ample whitespace, and subtle shadows.
+- **Glassmorphism**: Use backdrop-blur and semi-transparent backgrounds for overlays and cards where appropriate (e.g., `backdrop-blur-md bg-white/10`).
+- **No Gradients (Strict)**: Avoid large, outdated gradients. Use solid colors or very subtle, high-quality mesh gradients only if absolutely necessary for branding.
+- **Bento Grids**: Structure dashboard and content layouts using "Bento" style grids for a modern look.
+- **Micro-Interactions**: All interactive elements MUST have hover, focus, and active states.
+
+## 2. Technical Stack & Implementation
+- **Framework**: React / Next.js
+- **Styling**: Tailwind CSS (Utility-first)
+- **Icons**: Lucide React (standardize on this library)
+- **Components**: Shadcn UI (or compatible structure)
+
+## 3. Cursor & Interaction Rules
+- **Clickable Elements**: verify `cursor-pointer` is applied to all buttons, links, and interactive generic elements.
+- **Hover Feedback**:
+  - Buttons: Slight scale (`hover:scale-105`), brightness change, or background shift.
+  - Links: Underline or color shift.
+  - Cards: Slight elevation (`hover:shadow-lg`) or border highlight.
+- **Focus States**: EVERYTHING interactive must have a visible focus ring (`focus-visible:ring-2`).
+- **Transitions**: Use `transition-all duration-200` (or 300) for smooth state changes.
+
+## 4. Typography & Color
+- **Font**: Use Inter, Geist Sans, or similar modern sans-serif.
+- **Hierarchy**: distinct H1, H2, H3 styles. Text colors should be `text-foreground` or `text-muted-foreground` (if using shadcn variables) or specific grays (e.g., `text-gray-900`, `text-gray-500`) to ensure contrast.
+- **Contrast**: Confirm WCAG AA compliance for all text/background combinations.
+
+## 5. Accessibility (A11y)
+- **Semantic HTML**: Use `<button>`, `<nav>`, `<main>`, `<header>`, etc., not just `<div>`.
+- **Labels**: `aria-label` for icon-only buttons.
+- **Images**: `alt` text for all images.
+
+## 6. Responsive Design
+- **Mobile-First**: Define base styles for mobile, then `md:`, `lg:`, `xl:` for larger screens.
+- **Touch Targets**: Minimum 44x44px for touch targets on mobile.
+
+## 7. Example Implementation (Tailwind)
+```tsx
+// Modern Button Component Example
+<button 
+  className="
+    inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors 
+    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring 
+    disabled:pointer-events-none disabled:opacity-50
+    bg-primary text-primary-foreground hover:bg-primary/90
+    h-10 px-4 py-2
+    hover:scale-[1.02] active:scale-[0.98] duration-200
+  "
+>
+  Click Me
+</button>
+```
+
+## 8. Anti-Patterns (What to Avoid)
+- **Generic "Bootstrap" look**.
+- **Inconsistent spacing** (use Tailwind's 4px grid system: p-4, m-2, gap-4).
+- **layout shifts** (CLS) - define dimensions for images/videos.
