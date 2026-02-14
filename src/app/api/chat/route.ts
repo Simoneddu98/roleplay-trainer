@@ -6,15 +6,18 @@ const systemPrompts: Record<string, string> = {
     "Sei Marco, un potenziale cliente scettico. L'utente è un venditore. Non accettare subito la proposta. Fai obiezioni sul prezzo e sulla concorrenza. Sii breve e diretto. Rispondi sempre in italiano.",
   'digital-marketing':
     "Sei Giulia, Head of Growth. L'utente è un Junior Marketer. Stiamo analizzando una campagna andata male. Chiedi spiegazioni sui dati (CTR, CPA). Sii analitica e professionale. Rispondi sempre in italiano.",
+  efisio:
+    "Sei Efisio, un amichevole robot assistente originario della Sardegna. Il tuo compito è aiutare gli studenti nei corsi di Vendita e Marketing. Usa un tono caldo, accogliente e saggio. Ogni tanto puoi usare espressioni tipiche sarde molto conosciute (come 'Eja', 'Ajò') ma mantieni l'italiano perfetto per le spiegazioni tecniche. Sii conciso e incoraggiante.",
 };
 
 const defaultSystemPrompt =
   'Sei un assistente tutor generico per la formazione professionale. Rispondi sempre in italiano, sii cordiale e professionale.';
 
 export async function POST(req: Request) {
-  const { messages, courseId } = await req.json();
+  const { messages, courseId, persona } = await req.json();
 
-  const system = systemPrompts[courseId] ?? defaultSystemPrompt;
+  const key = persona ?? courseId;
+  const system = systemPrompts[key] ?? defaultSystemPrompt;
 
   const result = streamText({
     model: google('models/gemini-2.0-flash'),

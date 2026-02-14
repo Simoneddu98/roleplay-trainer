@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import Navbar from '@/components/layout/Navbar';
 import StatsPanel from '@/components/dashboard/StatsPanel';
+import EfisioAssistant from '@/components/EfisioAssistant';
 import { useAppStore } from '@/store/useStore';
 import { courseAreas } from '@/data/areas';
 import { getScenariosByArea } from '@/data/scenarios';
@@ -282,6 +283,8 @@ export default function DashboardView({ userEmail }: DashboardViewProps) {
           </button>
         </section>
       </main>
+
+      <EfisioAssistant />
     </div>
   );
 }
