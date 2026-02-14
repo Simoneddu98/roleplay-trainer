@@ -6,6 +6,8 @@ import { useRouter, useParams } from 'next/navigation';
 import ScenarioVideo from '@/components/remotion/ScenarioVideo';
 import { SCENARIOS } from '@/data/simulation-scenarios';
 import { useAppStore } from '@/store/useStore';
+import TriviaGame from '@/components/TriviaGame';
+import { fetchGame } from '@/lib/triviamaker';
 import {
   ArrowLeft, Pause, RotateCcw, Zap, CheckCircle2, Clapperboard, Play,
   Volume2, VolumeX,
@@ -28,6 +30,8 @@ export default function CourseSimulationPage() {
   const lastSpokenLineRef = useRef<number>(-1);
 
   const scenario = SCENARIOS[courseId];
+  const triviaGame = fetchGame(courseId);
+  const [isQuizPassed, setIsQuizPassed] = useState(!triviaGame); // skip if no quiz
 
   // Monitor frame to auto-pause at decision point
   useEffect(() => {
@@ -143,13 +147,13 @@ export default function CourseSimulationPage() {
   // Scenario not found
   if (!scenario) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#06060a] flex items-center justify-center">
         <div className="text-center space-y-4">
-          <h1 className="text-2xl font-bold text-slate-900">Simulazione non trovata</h1>
-          <p className="text-slate-500">Lo scenario &quot;{courseId}&quot; non esiste.</p>
+          <h1 className="text-2xl font-bold text-white">Simulazione non trovata</h1>
+          <p className="text-slate-400">Lo scenario &quot;{courseId}&quot; non esiste.</p>
           <button
             onClick={() => router.push('/')}
-            className="inline-flex items-center gap-2 px-5 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl font-medium hover:from-violet-500 hover:to-purple-500 transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             Torna alla Dashboard
@@ -160,20 +164,20 @@ export default function CourseSimulationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#06060a]">
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
+      <div className="sticky top-0 z-50 bg-[#06060a]/80 backdrop-blur-md border-b border-white/[0.06]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-indigo-600 transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-violet-400 transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             Dashboard
           </button>
           <div className="flex items-center gap-2">
-            <Clapperboard className="w-4 h-4 text-indigo-600" />
-            <span className="text-sm font-semibold text-slate-900">Simulazione Interattiva</span>
+            <Clapperboard className="w-4 h-4 text-violet-400" />
+            <span className="text-sm font-semibold text-white">Simulazione Interattiva</span>
           </div>
           <button
             onClick={() => {
@@ -198,15 +202,23 @@ export default function CourseSimulationPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         {/* Title */}
         <div className="mb-6">
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
+          <h1 className="text-xl sm:text-2xl font-bold text-white">
             {scenario.subtitle}
           </h1>
-          <p className="text-slate-500 mt-1 text-sm">
-            Guarda lo scenario e scegli come rispondere al momento decisivo.
+          <p className="text-slate-400 mt-1 text-sm">
+            {isQuizPassed
+              ? 'Guarda lo scenario e scegli come rispondere al momento decisivo.'
+              : 'Supera il quiz di assessment per accedere alla simulazione.'}
           </p>
         </div>
 
+        {/* Quiz Gate */}
+        {!isQuizPassed && triviaGame && (
+          <TriviaGame game={triviaGame} onPass={() => setIsQuizPassed(true)} />
+        )}
+
         {/* Player Container */}
+        {isQuizPassed && (<>
         <div className="relative bg-black rounded-2xl overflow-hidden shadow-xl">
           <div className="aspect-video">
             <Player
@@ -328,23 +340,24 @@ export default function CourseSimulationPage() {
         </div>
 
         {/* Info */}
-        <div className="mt-6 bg-white rounded-xl border border-slate-200 p-5">
-          <h3 className="text-sm font-semibold text-slate-900 mb-2">Come funziona</h3>
-          <ul className="space-y-2 text-sm text-slate-500">
+        <div className="mt-6 bg-white/[0.03] rounded-xl border border-white/[0.06] p-5">
+          <h3 className="text-sm font-semibold text-white mb-2">Come funziona</h3>
+          <ul className="space-y-2 text-sm text-slate-400">
             <li className="flex items-start gap-2">
-              <Play className="w-4 h-4 text-indigo-500 mt-0.5 shrink-0" />
+              <Play className="w-4 h-4 text-violet-400 mt-0.5 shrink-0" />
               Lo scenario si avvia automaticamente con un dialogo tra te e il cliente.
             </li>
             <li className="flex items-start gap-2">
-              <Pause className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+              <Pause className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
               Al momento cruciale il video si mette in pausa e ti chiede di scegliere.
             </li>
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
               Ogni scelta porta a un esito diverso. Prova entrambe per guadagnare più XP!
             </li>
           </ul>
         </div>
+        </>)}
       </div>
     </div>
   );
