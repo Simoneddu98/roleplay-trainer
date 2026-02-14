@@ -7,7 +7,7 @@ import { useAppStore } from '@/store/useStore';
 import { courseAreas } from '@/data/areas';
 import { getScenariosByArea } from '@/data/scenarios';
 import {
-  TrendingUp, Sparkles, ChevronRight, BookOpen, CheckCircle2,
+  TrendingUp, Sparkles, ChevronRight, BookOpen, CheckCircle2, Brain, Zap,
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -100,6 +100,37 @@ export default function HomePage() {
               );
             })}
           </div>
+        </section>
+        {/* Trivia Challenge */}
+        <section>
+          <button
+            onClick={() => router.push('/trivia')}
+            className="group w-full text-left bg-white rounded-2xl border border-slate-200 overflow-hidden
+              hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+          >
+            <div className="flex flex-col sm:flex-row">
+              <div className="bg-gradient-to-br from-amber-400 to-orange-500 px-6 py-8 sm:py-0 sm:w-48 flex items-center justify-center relative">
+                <div className="absolute top-2 left-2 w-16 h-16 rounded-full bg-white/10" />
+                <div className="absolute bottom-2 right-2 w-10 h-10 rounded-full bg-white/10" />
+                <Brain className="w-12 h-12 text-white relative z-10" />
+              </div>
+              <div className="flex-1 px-6 py-6 flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 mb-1">Trivia Challenge</h3>
+                  <p className="text-sm text-slate-500 leading-relaxed">
+                    Metti alla prova le tue conoscenze informatiche con 10 domande a risposta multipla. Guadagna XP per ogni risposta corretta!
+                  </p>
+                  <div className="flex items-center gap-1 mt-3 text-sm font-semibold text-amber-600">
+                    <Zap className="w-4 h-4" />
+                    Fino a 100 XP per partita
+                  </div>
+                </div>
+                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-amber-100 transition-colors shrink-0 ml-4">
+                  <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-amber-600 transition-colors" />
+                </div>
+              </div>
+            </div>
+          </button>
         </section>
       </main>
     </div>
