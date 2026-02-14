@@ -29,7 +29,7 @@ export interface ScenarioVideoProps {
 
 function Avatar({
   imageSrc,
-  fallbackInitials,
+  fallbackInitials: _fallbackInitials,
   fallbackColor,
   side,
   label,
@@ -46,95 +46,106 @@ function Avatar({
   fps: number;
   isSpeaking: boolean;
 }) {
-  const breathCycle = Math.sin((frame / fps) * 1.8) * 0.015 + 1;
-  const speakPulse = isSpeaking
-    ? Math.sin((frame / fps) * 6) * 0.02 + 1.03
+  // Breathing animation: gentle scale oscillation
+  const breathScale = interpolate(
+    Math.sin((frame / fps) * 1.8),
+    [-1, 1],
+    [0.99, 1.02],
+  );
+  // Speaking pulse: faster, more visible when talking
+  const speakScale = isSpeaking
+    ? interpolate(Math.sin((frame / fps) * 6), [-1, 1], [1.0, 1.04])
     : 1;
-  const scale = breathCycle * speakPulse;
+  const scale = breathScale * speakScale;
 
+  // Slide-up entrance
+  const entrance = spring({
+    frame,
+    fps,
+    config: { damping: 18, stiffness: 120 },
+  });
+  const translateY = interpolate(entrance, [0, 1], [120, 0]);
+
+  // Speaking glow
   const glowOpacity = isSpeaking
-    ? interpolate(Math.sin((frame / fps) * 4), [-1, 1], [0.2, 0.5])
+    ? interpolate(Math.sin((frame / fps) * 4), [-1, 1], [0.3, 0.7])
     : 0;
 
   return (
     <div
       style={{
         position: 'absolute',
-        bottom: 70,
-        [side]: 70,
+        bottom: 0,
+        [side]: side === 'left' ? 30 : 30,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: 10,
+        transform: `translateY(${translateY}px) scale(${scale})`,
+        transformOrigin: 'bottom center',
       }}
     >
+      {/* Character image */}
       <div
         style={{
-          position: 'absolute',
-          top: -6,
-          width: 112,
-          height: 112,
-          borderRadius: '50%',
-          border: `3px solid ${isSpeaking ? '#4f46e5' : 'transparent'}`,
-          opacity: glowOpacity,
-          boxShadow: isSpeaking ? '0 0 20px rgba(79,70,229,0.3)' : 'none',
-          transition: 'opacity 0.3s',
-        }}
-      />
-      <div
-        style={{
-          width: 100,
-          height: 100,
-          borderRadius: '50%',
-          overflow: 'hidden',
-          border: '3px solid white',
-          boxShadow: '0 6px 20px rgba(0,0,0,0.15)',
-          transform: `scale(${scale})`,
-          background: fallbackColor,
+          position: 'relative',
+          height: 350,
+          width: 260,
           display: 'flex',
-          alignItems: 'center',
+          alignItems: 'flex-end',
           justifyContent: 'center',
         }}
       >
-        <Img
-          src={staticFile(imageSrc)}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-          }}
-          onError={() => {}}
-        />
+        {/* Speaking glow behind character */}
         <div
           style={{
             position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontSize: 32,
-            fontWeight: 700,
-            zIndex: -1,
+            bottom: 20,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: 200,
+            height: 200,
+            borderRadius: '50%',
+            background: `radial-gradient(circle, ${fallbackColor}44, transparent)`,
+            opacity: glowOpacity,
+            filter: 'blur(20px)',
           }}
-        >
-          {fallbackInitials}
-        </div>
+        />
+        <Img
+          src={staticFile(imageSrc)}
+          style={{
+            height: '100%',
+            objectFit: 'contain',
+            filter: `drop-shadow(0 8px 24px rgba(0,0,0,0.25))`,
+            position: 'relative',
+            zIndex: 1,
+          }}
+        />
       </div>
+
+      {/* Name label */}
       <div
         style={{
-          background: 'rgba(255,255,255,0.9)',
-          backdropFilter: 'blur(4px)',
-          borderRadius: 8,
-          padding: '4px 12px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          position: 'relative',
+          zIndex: 2,
+          marginTop: -10,
+          background: isSpeaking
+            ? `linear-gradient(135deg, ${fallbackColor}, ${fallbackColor}dd)`
+            : 'rgba(255,255,255,0.95)',
+          backdropFilter: 'blur(8px)',
+          borderRadius: 12,
+          padding: '6px 16px',
+          boxShadow: isSpeaking
+            ? `0 4px 16px ${fallbackColor}44`
+            : '0 2px 10px rgba(0,0,0,0.1)',
+          border: isSpeaking ? 'none' : '1px solid rgba(255,255,255,0.8)',
         }}
       >
         <span
           style={{
-            color: '#334155',
-            fontSize: 12,
-            fontWeight: 600,
+            color: isSpeaking ? 'white' : '#334155',
+            fontSize: 13,
+            fontWeight: 700,
+            letterSpacing: 0.3,
           }}
         >
           {label}
@@ -173,7 +184,7 @@ function SpeechBubble({
     <div
       style={{
         position: 'absolute',
-        bottom: 210,
+        bottom: 360,
         [side]: 50,
         maxWidth: 380,
         transform: `scale(${scale})`,
