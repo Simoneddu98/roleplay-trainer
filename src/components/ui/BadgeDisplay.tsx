@@ -1,9 +1,10 @@
 import {
   Shield, Target, GraduationCap, Heart, Lightbulb, Trophy, Lock,
+  Share2, Bot, PenTool, Sparkles,
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  Shield, Target, GraduationCap, Heart, Lightbulb, Trophy,
+  Shield, Target, GraduationCap, Heart, Lightbulb, Trophy, Share2, Bot, PenTool, Sparkles,
 };
 
 interface BadgeDisplayProps {

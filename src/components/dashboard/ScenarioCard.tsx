@@ -1,15 +1,20 @@
 import {
   HandCoins, MessageSquareWarning, UserPlus, Star, ChevronRight, CheckCircle, Zap,
+  Share2, Bot, PenTool,
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  HandCoins, MessageSquareWarning, UserPlus,
+  HandCoins, MessageSquareWarning, UserPlus, Share2, Bot, PenTool,
 };
 
 const categoryColors: Record<string, string> = {
   Vendita: 'bg-blue-100 text-blue-700',
   Leadership: 'bg-purple-100 text-purple-700',
   HR: 'bg-emerald-100 text-emerald-700',
+  'Digital Marketing': 'bg-pink-100 text-pink-700',
+  AI: 'bg-violet-100 text-violet-700',
+  'Social Media': 'bg-sky-100 text-sky-700',
+  'Content Strategy': 'bg-amber-100 text-amber-700',
 };
 
 interface ScenarioCardProps {

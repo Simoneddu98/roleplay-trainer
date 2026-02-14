@@ -1,6 +1,13 @@
 export type MessageRole = 'user' | 'bot' | 'system';
 
-export type ScenarioCategory = 'Vendita' | 'Leadership' | 'HR';
+export type ScenarioCategory =
+  | 'Vendita'
+  | 'Leadership'
+  | 'HR'
+  | 'Digital Marketing'
+  | 'AI'
+  | 'Social Media'
+  | 'Content Strategy';
 
 export type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
 
@@ -13,6 +20,7 @@ export interface Message {
 
 export interface Scenario {
   id: string;
+  areaId: string;
   title: string;
   description: string;
   category: ScenarioCategory;
@@ -22,8 +30,19 @@ export interface Scenario {
   xpReward: number;
 }
 
+export interface CourseArea {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  icon: string;
+  color: string;
+  gradient: string;
+}
+
 export interface Badge {
   id: string;
+  areaId?: string;
   name: string;
   description: string;
   icon: string;
