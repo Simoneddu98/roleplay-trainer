@@ -10,84 +10,20 @@ import {
   spring,
   Sequence,
 } from 'remotion';
+import type { DialogLine, SimulationCharacter } from '@/data/simulation-scenarios';
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-interface DialogLine {
-  speaker: 'A' | 'B';
-  text: string;
-  startFrame: number;
-  durationFrames: number;
-}
-
-export interface BranchConfig {
-  pauseAtFrame: number;
-  branchA: { label: string; goToFrame: number };
-  branchB: { label: string; goToFrame: number };
-}
+// ─── Props ────────────────────────────────────────────────────────────────────
 
 export interface ScenarioVideoProps {
   branch: 'none' | 'A' | 'B';
+  title: string;
+  subtitle: string;
+  titleGradient: string;
+  characterA: SimulationCharacter;
+  characterB: SimulationCharacter;
+  dialogue: DialogLine[];
+  outcomes: { A: DialogLine[]; B: DialogLine[] };
 }
-
-// ─── Dialog Data ─────────────────────────────────────────────────────────────
-
-const introDialog: DialogLine[] = [
-  {
-    speaker: 'A',
-    text: 'Buongiorno Dott. Bianchi, grazie per aver accettato questo incontro.',
-    startFrame: 30,
-    durationFrames: 120,
-  },
-  {
-    speaker: 'B',
-    text: 'Buongiorno. Ho visto la vostra proposta, ma devo dirvi che il prezzo mi sembra fuori mercato.',
-    startFrame: 160,
-    durationFrames: 140,
-  },
-];
-
-const branchADialog: DialogLine[] = [
-  {
-    speaker: 'A',
-    text: 'Capisco la sua preoccupazione. Mi permetta di mostrarle il ROI che i nostri clienti ottengono mediamente in 6 mesi.',
-    startFrame: 310,
-    durationFrames: 150,
-  },
-  {
-    speaker: 'B',
-    text: 'Hmm, interessante. Se i numeri sono questi, potremmo rivalutare. Mi mandi un caso studio dettagliato.',
-    startFrame: 470,
-    durationFrames: 140,
-  },
-  {
-    speaker: 'A',
-    text: 'Certamente! Le invio tutto entro domani. Possiamo fissare un follow-up per giovedì?',
-    startFrame: 620,
-    durationFrames: 130,
-  },
-];
-
-const branchBDialog: DialogLine[] = [
-  {
-    speaker: 'A',
-    text: 'Ha ragione, il prezzo è più alto. Ma consideri che include supporto 24/7 e formazione completa per il suo team.',
-    startFrame: 310,
-    durationFrames: 150,
-  },
-  {
-    speaker: 'B',
-    text: 'Il supporto dedicato è un buon punto. I competitor non lo offrono. Quanto dura la formazione?',
-    startFrame: 470,
-    durationFrames: 140,
-  },
-  {
-    speaker: 'A',
-    text: 'Due settimane on-site, poi supporto continuo. Il suo team sarà autonomo in un mese.',
-    startFrame: 620,
-    durationFrames: 130,
-  },
-];
 
 // ─── Sub-Components ──────────────────────────────────────────────────────────
 
@@ -110,15 +46,12 @@ function Avatar({
   fps: number;
   isSpeaking: boolean;
 }) {
-  // Breathing animation: subtle scale oscillation
   const breathCycle = Math.sin((frame / fps) * 1.8) * 0.015 + 1;
-  // Speaking pulse: slightly more pronounced when active
   const speakPulse = isSpeaking
     ? Math.sin((frame / fps) * 6) * 0.02 + 1.03
     : 1;
   const scale = breathCycle * speakPulse;
 
-  // Speaking glow ring
   const glowOpacity = isSpeaking
     ? interpolate(Math.sin((frame / fps) * 4), [-1, 1], [0.2, 0.5])
     : 0;
@@ -135,7 +68,6 @@ function Avatar({
         gap: 10,
       }}
     >
-      {/* Glow ring */}
       <div
         style={{
           position: 'absolute',
@@ -149,7 +81,6 @@ function Avatar({
           transition: 'opacity 0.3s',
         }}
       />
-      {/* Avatar container */}
       <div
         style={{
           width: 100,
@@ -172,11 +103,8 @@ function Avatar({
             height: '100%',
             objectFit: 'cover',
           }}
-          onError={() => {
-            // Fallback handled by the parent background + initials
-          }}
+          onError={() => {}}
         />
-        {/* Fallback initials (visible if image fails to load via transparent overlay) */}
         <div
           style={{
             position: 'absolute',
@@ -193,7 +121,6 @@ function Avatar({
           {fallbackInitials}
         </div>
       </div>
-      {/* Name label */}
       <div
         style={{
           background: 'rgba(255,255,255,0.9)',
@@ -270,7 +197,6 @@ function SpeechBubble({
       >
         {text}
       </div>
-      {/* Arrow */}
       <div
         style={{
           width: 0,
@@ -288,7 +214,6 @@ function SpeechBubble({
 }
 
 function OfficeBackground({ frame }: { frame: number }) {
-  // Subtle ambient light animation
   const lightShift = Math.sin(frame * 0.01) * 2;
 
   return (
@@ -297,7 +222,6 @@ function OfficeBackground({ frame }: { frame: number }) {
         background: `linear-gradient(${135 + lightShift}deg, #e0e7ff 0%, #f1f5f9 50%, #dbeafe 100%)`,
       }}
     >
-      {/* Wall texture */}
       <div
         style={{
           position: 'absolute',
@@ -306,7 +230,6 @@ function OfficeBackground({ frame }: { frame: number }) {
             'radial-gradient(circle at 20% 30%, rgba(99,102,241,0.03) 0%, transparent 50%)',
         }}
       />
-      {/* Desk */}
       <div
         style={{
           position: 'absolute',
@@ -318,7 +241,6 @@ function OfficeBackground({ frame }: { frame: number }) {
           borderTop: '3px solid #6d4c2e',
         }}
       />
-      {/* Desk surface reflection */}
       <div
         style={{
           position: 'absolute',
@@ -329,7 +251,6 @@ function OfficeBackground({ frame }: { frame: number }) {
           background: 'rgba(255,255,255,0.3)',
         }}
       />
-      {/* Window */}
       <div
         style={{
           position: 'absolute',
@@ -367,7 +288,6 @@ function OfficeBackground({ frame }: { frame: number }) {
           }}
         />
       </div>
-      {/* Plant */}
       <div
         style={{
           position: 'absolute',
@@ -393,7 +313,6 @@ function OfficeBackground({ frame }: { frame: number }) {
           }}
         />
       </div>
-      {/* Bookshelf hint */}
       <div
         style={{
           position: 'absolute',
@@ -420,7 +339,19 @@ function OfficeBackground({ frame }: { frame: number }) {
   );
 }
 
-function TitleCard({ frame, fps }: { frame: number; fps: number }) {
+function TitleCard({
+  frame,
+  fps,
+  title,
+  subtitle,
+  gradient,
+}: {
+  frame: number;
+  fps: number;
+  title: string;
+  subtitle: string;
+  gradient: string;
+}) {
   const opacity = interpolate(frame, [0, 20, 80, 100], [0, 1, 1, 0], {
     extrapolateRight: 'clamp',
   });
@@ -431,7 +362,7 @@ function TitleCard({ frame, fps }: { frame: number; fps: number }) {
       style={{
         justifyContent: 'center',
         alignItems: 'center',
-        background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+        background: gradient,
         opacity,
       }}
     >
@@ -449,7 +380,7 @@ function TitleCard({ frame, fps }: { frame: number; fps: number }) {
             marginBottom: 12,
           }}
         >
-          Simulazione Vendita
+          {title}
         </div>
         <div
           style={{
@@ -457,7 +388,7 @@ function TitleCard({ frame, fps }: { frame: number; fps: number }) {
             color: 'rgba(255,255,255,0.8)',
           }}
         >
-          Gestione Obiezioni sul Prezzo
+          {subtitle}
         </div>
       </div>
     </AbsoluteFill>
@@ -466,55 +397,67 @@ function TitleCard({ frame, fps }: { frame: number; fps: number }) {
 
 // ─── Main Composition ────────────────────────────────────────────────────────
 
-export default function ScenarioVideo({ branch }: ScenarioVideoProps) {
+export default function ScenarioVideo({
+  branch,
+  title,
+  subtitle,
+  titleGradient,
+  characterA,
+  characterB,
+  dialogue,
+  outcomes,
+}: ScenarioVideoProps) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
   const activeDialog =
     branch === 'A'
-      ? [...introDialog, ...branchADialog]
+      ? [...dialogue, ...outcomes.A]
       : branch === 'B'
-        ? [...introDialog, ...branchBDialog]
-        : introDialog;
+        ? [...dialogue, ...outcomes.B]
+        : dialogue;
 
-  // Determine who is currently speaking
   const currentSpeaker = activeDialog.find(
     (line) => frame >= line.startFrame && frame < line.startFrame + line.durationFrames
   )?.speaker ?? null;
 
   return (
     <AbsoluteFill style={{ fontFamily: 'system-ui, sans-serif' }}>
-      {/* Title card: first ~100 frames (fade out included) */}
-      {frame < 110 && <TitleCard frame={frame} fps={fps} />}
+      {frame < 110 && (
+        <TitleCard
+          frame={frame}
+          fps={fps}
+          title={title}
+          subtitle={subtitle}
+          gradient={titleGradient}
+        />
+      )}
 
-      {/* Main scene */}
       {frame >= 20 && (
         <Sequence from={20}>
           <OfficeBackground frame={frame} />
 
-          {/* Avatars with images */}
           <Avatar
-            imageSrc="characters/manager-neutral.png"
-            fallbackInitials="TU"
-            fallbackColor="#4f46e5"
+            imageSrc={characterA.image}
+            fallbackInitials={characterA.fallbackInitials}
+            fallbackColor={characterA.fallbackColor}
             side="left"
-            label="Tu (Venditore)"
+            label={characterA.label}
             frame={frame}
             fps={fps}
             isSpeaking={currentSpeaker === 'A'}
           />
           <Avatar
-            imageSrc="characters/employee-neutral.png"
-            fallbackInitials="MB"
-            fallbackColor="#6d28d9"
+            imageSrc={characterB.image}
+            fallbackInitials={characterB.fallbackInitials}
+            fallbackColor={characterB.fallbackColor}
             side="right"
-            label="Dott. Bianchi"
+            label={characterB.label}
             frame={frame}
             fps={fps}
             isSpeaking={currentSpeaker === 'B'}
           />
 
-          {/* Dialog bubbles */}
           {activeDialog.map((line, i) => {
             const isVisible =
               frame >= line.startFrame &&
@@ -530,7 +473,11 @@ export default function ScenarioVideo({ branch }: ScenarioVideoProps) {
                 frame={frame}
                 startFrame={line.startFrame}
                 fps={fps}
-                accentColor={line.speaker === 'A' ? '#4f46e5' : '#7c3aed'}
+                accentColor={
+                  line.speaker === 'A'
+                    ? characterA.fallbackColor
+                    : characterB.fallbackColor
+                }
               />
             );
           })}
@@ -539,21 +486,3 @@ export default function ScenarioVideo({ branch }: ScenarioVideoProps) {
     </AbsoluteFill>
   );
 }
-
-// ─── Export config ────────────────────────────────────────────────────────────
-
-export const SCENARIO_CONFIG = {
-  fps: 30,
-  durationInFrames: 780,
-  width: 960,
-  height: 540,
-  pauseAtFrame: 300,
-  branchA: {
-    label: 'Risposta Strategica (mostra ROI)',
-    goToFrame: 310,
-  },
-  branchB: {
-    label: 'Risposta Empatica (evidenzia supporto)',
-    goToFrame: 310,
-  },
-};
