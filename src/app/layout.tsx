@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "@/store/useStore";
 
-const geistSans = Geist({
+const inter = Inter({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
@@ -21,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="it">
-      <body className={`${geistSans.variable} antialiased bg-slate-50 text-slate-900`}>
+      <body className={`${inter.variable} antialiased bg-[#06060a] text-slate-100 noise-bg`}>
         <AppProvider>{children}</AppProvider>
       </body>
     </html>

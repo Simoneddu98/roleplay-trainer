@@ -17,29 +17,29 @@ export default function StatsPanel({ userProgress }: StatsPanelProps) {
       label: 'Livello',
       value: level,
       icon: Trophy,
-      color: 'text-amber-500',
-      bg: 'bg-amber-50',
+      color: 'text-amber-400',
+      bg: 'bg-amber-500/10',
     },
     {
       label: 'XP Totali',
       value: totalXp,
       icon: Zap,
-      color: 'text-indigo-500',
-      bg: 'bg-indigo-50',
+      color: 'text-violet-400',
+      bg: 'bg-violet-500/10',
     },
     {
       label: 'Scenari',
       value: completedScenarios.length,
       icon: Target,
-      color: 'text-emerald-500',
-      bg: 'bg-emerald-50',
+      color: 'text-emerald-400',
+      bg: 'bg-emerald-500/10',
     },
     {
       label: 'Streak',
       value: `${streakDays}g`,
       icon: Flame,
-      color: 'text-orange-500',
-      bg: 'bg-orange-50',
+      color: 'text-orange-400',
+      bg: 'bg-orange-500/10',
     },
   ];
 
@@ -51,13 +51,13 @@ export default function StatsPanel({ userProgress }: StatsPanelProps) {
           return (
             <div
               key={stat.label}
-              className="bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-3"
+              className="bg-white/[0.03] rounded-xl border border-white/[0.06] p-4 flex items-center gap-3 hover:bg-white/[0.05] transition-colors"
             >
               <div className={`w-10 h-10 rounded-lg ${stat.bg} flex items-center justify-center`}>
                 <Icon className={`w-5 h-5 ${stat.color}`} />
               </div>
               <div>
-                <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
+                <p className="text-2xl font-bold text-white">{stat.value}</p>
                 <p className="text-xs text-slate-500">{stat.label}</p>
               </div>
             </div>
@@ -65,7 +65,7 @@ export default function StatsPanel({ userProgress }: StatsPanelProps) {
         })}
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 p-5">
+      <div className="bg-white/[0.03] rounded-xl border border-white/[0.06] p-5">
         <ProgressBar
           value={progressPercent}
           label={`Livello ${level} → ${level + 1}  (${totalXp}/${nextLevelXp} XP)`}

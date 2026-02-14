@@ -43,7 +43,7 @@ export default function ChatInput({
   };
 
   return (
-    <div className="flex items-end gap-3 p-4 border-t border-slate-200 bg-white">
+    <div className="flex items-end gap-3 p-4 border-t border-white/[0.06] bg-white/[0.02]">
       <textarea
         ref={textareaRef}
         value={text}
@@ -52,15 +52,16 @@ export default function ChatInput({
         placeholder={placeholder}
         disabled={disabled}
         rows={1}
-        className="flex-1 resize-none rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-900
-          placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+        className="flex-1 resize-none rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3 text-sm text-white
+          placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/30
           disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
       />
       <button
         onClick={handleSend}
         disabled={!text.trim() || disabled}
-        className="shrink-0 w-11 h-11 rounded-xl bg-indigo-600 text-white flex items-center justify-center
-          hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-40 disabled:cursor-not-allowed
+        className="shrink-0 w-11 h-11 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white flex items-center justify-center
+          hover:from-violet-500 hover:to-purple-500 shadow-lg shadow-violet-500/25
+          disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none
           transition-all duration-200 cursor-pointer"
       >
         <Send className="w-4 h-4" />

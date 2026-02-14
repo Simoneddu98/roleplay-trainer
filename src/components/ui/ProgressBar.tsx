@@ -13,16 +13,16 @@ export default function ProgressBar({ value, label, size = 'md' }: ProgressBarPr
       {(label || true) && (
         <div className="flex justify-between items-center mb-1.5">
           {label && (
-            <span className="text-sm font-medium text-slate-700">{label}</span>
+            <span className="text-sm font-medium text-slate-400">{label}</span>
           )}
-          <span className="text-sm font-semibold text-indigo-600 ml-auto">
+          <span className="text-sm font-semibold text-violet-400 ml-auto">
             {Math.round(clampedValue)}%
           </span>
         </div>
       )}
-      <div className={`w-full bg-slate-200 rounded-full overflow-hidden ${barHeight}`}>
+      <div className={`w-full bg-white/[0.06] rounded-full overflow-hidden ${barHeight}`}>
         <div
-          className={`${barHeight} bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full transition-all duration-700 ease-out`}
+          className={`${barHeight} bg-gradient-to-r from-violet-500 to-purple-500 rounded-full transition-all duration-700 ease-out`}
           style={{ width: `${clampedValue}%` }}
         />
       </div>

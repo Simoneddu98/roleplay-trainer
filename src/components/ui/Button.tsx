@@ -10,11 +10,11 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles = {
   primary:
-    'bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800 shadow-sm',
+    'bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-500 hover:to-purple-500 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40',
   secondary:
-    'border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 active:bg-slate-100',
+    'border border-white/10 text-slate-300 bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/20 hover:text-white',
   ghost:
-    'text-slate-600 hover:text-slate-900 hover:bg-slate-100 active:bg-slate-200',
+    'text-slate-400 hover:text-white hover:bg-white/[0.06]',
 };
 
 const sizeStyles = {
@@ -34,7 +34,7 @@ export default function Button({
 }: ButtonProps) {
   return (
     <button
-      className={`inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 cursor-pointer
+      className={`inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 cursor-pointer
         ${variantStyles[variant]}
         ${sizeStyles[size]}
         ${disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}

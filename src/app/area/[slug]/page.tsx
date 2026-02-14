@@ -37,15 +37,15 @@ export default function AreaPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#06060a]">
       <Navbar totalXp={userProgress.totalXp} />
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-10">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-10 relative z-10">
         {/* Back + Header */}
         <div>
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-indigo-600 mb-4 transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-violet-400 mb-4 transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             Tutti i corsi
@@ -61,7 +61,7 @@ export default function AreaPage() {
 
         {/* Scenari */}
         <section>
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">
+          <h2 className="text-lg font-semibold text-white mb-4">
             Scenari disponibili
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -85,8 +85,8 @@ export default function AreaPage() {
         {/* Badges */}
         <section>
           <div className="flex items-center gap-2 mb-4">
-            <Award className="w-5 h-5 text-indigo-600" />
-            <h2 className="text-lg font-semibold text-slate-900">
+            <Award className="w-5 h-5 text-violet-400" />
+            <h2 className="text-lg font-semibold text-white">
               Badge & Riconoscimenti
             </h2>
           </div>

@@ -28,17 +28,17 @@ export default function ChatWindow({
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-full bg-slate-50">
+    <div className="flex flex-col h-full bg-[#06060a]">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3 bg-white border-b border-slate-200 shrink-0">
+      <div className="flex items-center gap-3 px-4 py-3 bg-white/[0.03] border-b border-white/[0.06] shrink-0">
         <button
           onClick={onBack}
-          className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors cursor-pointer"
+          className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-500 hover:bg-white/[0.06] hover:text-white transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
-          <h2 className="text-sm font-semibold text-slate-900">{scenarioTitle}</h2>
+          <h2 className="text-sm font-semibold text-white">{scenarioTitle}</h2>
           <p className="text-xs text-slate-500">Simulazione in corso</p>
         </div>
       </div>

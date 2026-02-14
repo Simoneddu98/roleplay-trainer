@@ -8,6 +8,7 @@ import { SCENARIOS } from '@/data/simulation-scenarios';
 import { useAppStore } from '@/store/useStore';
 import {
   ArrowLeft, Pause, RotateCcw, Zap, CheckCircle2, Clapperboard, Play,
+  Volume2, VolumeX,
 } from 'lucide-react';
 
 type Branch = 'none' | 'A' | 'B';
@@ -23,6 +24,8 @@ export default function CourseSimulationPage() {
   const [branch, setBranch] = useState<Branch>('none');
   const [simState, setSimState] = useState<SimState>('playing');
   const [hasAwarded, setHasAwarded] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const lastSpokenLineRef = useRef<number>(-1);
 
   const scenario = SCENARIOS[courseId];
 
@@ -55,6 +58,62 @@ export default function CourseSimulationPage() {
     };
   }, [simState, branch, hasAwarded, dispatch, scenario]);
 
+  // Voice synthesis: speak dialogue lines as they appear
+  useEffect(() => {
+    if (!scenario || !voiceEnabled) return;
+    const player = playerRef.current;
+    if (!player) return;
+
+    const activeDialog =
+      branch === 'A'
+        ? [...scenario.dialogue, ...scenario.outcomes.A]
+        : branch === 'B'
+          ? [...scenario.dialogue, ...scenario.outcomes.B]
+          : scenario.dialogue;
+
+    const handleVoiceFrame = (e: { detail: { frame: number } }) => {
+      const frame = e.detail.frame;
+      const lineIndex = activeDialog.findIndex(
+        (line) => frame >= line.startFrame && frame < line.startFrame + line.durationFrames
+      );
+
+      if (lineIndex !== -1 && lineIndex !== lastSpokenLineRef.current) {
+        lastSpokenLineRef.current = lineIndex;
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(activeDialog[lineIndex].text);
+        utterance.lang = 'it-IT';
+        // Prefer a Google Italian voice if available
+        const voices = window.speechSynthesis.getVoices();
+        const italianVoice =
+          voices.find((v) => v.name.includes('Google') && v.lang.startsWith('it')) ??
+          voices.find((v) => v.lang.startsWith('it'));
+        if (italianVoice) utterance.voice = italianVoice;
+        utterance.rate = 1.0;
+        window.speechSynthesis.speak(utterance);
+      }
+
+      // If no line is active, reset tracking so re-entering a line will speak again
+      if (lineIndex === -1) {
+        lastSpokenLineRef.current = -1;
+      }
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    player.addEventListener('frameupdate', handleVoiceFrame as any);
+    return () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      player.removeEventListener('frameupdate', handleVoiceFrame as any);
+      window.speechSynthesis.cancel();
+    };
+  }, [scenario, voiceEnabled, branch]);
+
+  // Cleanup speech on unmount
+  useEffect(() => {
+    return () => {
+      window.speechSynthesis.cancel();
+    };
+  }, []);
+
   const handleBranchChoice = useCallback((chosen: 'A' | 'B') => {
     if (!scenario) return;
     setBranch(chosen);
@@ -72,6 +131,8 @@ export default function CourseSimulationPage() {
     setBranch('none');
     setSimState('playing');
     setHasAwarded(false);
+    lastSpokenLineRef.current = -1;
+    window.speechSynthesis.cancel();
     const player = playerRef.current;
     if (player) {
       player.seekTo(0);
@@ -114,7 +175,23 @@ export default function CourseSimulationPage() {
             <Clapperboard className="w-4 h-4 text-indigo-600" />
             <span className="text-sm font-semibold text-slate-900">Simulazione Interattiva</span>
           </div>
-          <div className="w-16" />
+          <button
+            onClick={() => {
+              setVoiceEnabled((v) => {
+                if (v) window.speechSynthesis.cancel();
+                return !v;
+              });
+            }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+              voiceEnabled
+                ? 'bg-violet-600 text-white hover:bg-violet-700'
+                : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+            }`}
+            title={voiceEnabled ? 'Disattiva voce' : 'Attiva voce'}
+          >
+            {voiceEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+            <span className="hidden sm:inline">{voiceEnabled ? 'Voce ON' : 'Voce OFF'}</span>
+          </button>
         </div>
       </div>
 

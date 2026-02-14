@@ -21,13 +21,13 @@ export default function BadgeDisplay({ name, description, icon, unlocked }: Badg
     <div
       className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border text-center transition-all duration-200
         ${unlocked
-          ? 'bg-white border-indigo-200 ring-2 ring-indigo-500/20 shadow-sm'
-          : 'bg-slate-50 border-slate-200 opacity-50 grayscale'
+          ? 'bg-white/[0.04] border-violet-500/30 ring-1 ring-violet-500/20 shadow-lg shadow-violet-500/5'
+          : 'bg-white/[0.02] border-white/[0.06] opacity-40 grayscale'
         }`}
     >
       <div
         className={`w-12 h-12 rounded-full flex items-center justify-center
-          ${unlocked ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-200 text-slate-400'}`}
+          ${unlocked ? 'bg-violet-500/15 text-violet-400' : 'bg-white/[0.06] text-slate-500'}`}
       >
         {unlocked ? (
           <IconComponent className="w-6 h-6" />
@@ -35,7 +35,7 @@ export default function BadgeDisplay({ name, description, icon, unlocked }: Badg
           <Lock className="w-5 h-5" />
         )}
       </div>
-      <h4 className="text-sm font-semibold text-slate-900">{name}</h4>
+      <h4 className="text-sm font-semibold text-slate-200">{name}</h4>
       <p className="text-xs text-slate-500 leading-relaxed">{description}</p>
     </div>
   );
