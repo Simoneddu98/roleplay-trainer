@@ -35,7 +35,7 @@ export async function POST(req: Request) {
   const system = resolveSystemPrompt(persona, courseId);
 
   const result = streamText({
-    model: ollama('mio-chatbot:latest'),
+    model: ollama('efisio-custom'),
     system,
     messages,
   });
