@@ -1,5 +1,6 @@
 import { google } from '@ai-sdk/google';
 import { streamText } from 'ai';
+import { getPersonaById } from '@/data/personas';
 
 const systemPrompts: Record<string, string> = {
   vendita:
@@ -13,11 +14,25 @@ const systemPrompts: Record<string, string> = {
 const defaultSystemPrompt =
   'Sei un assistente tutor generico per la formazione professionale. Rispondi sempre in italiano, sii cordiale e professionale.';
 
+function resolveSystemPrompt(persona?: string, courseId?: string): string {
+  // 1. Try persona file lookup first
+  if (persona) {
+    const found = getPersonaById(persona);
+    if (found) return found.systemPrompt;
+  }
+
+  // 2. Fall back to hardcoded system prompts
+  const key = persona ?? courseId;
+  if (key && systemPrompts[key]) return systemPrompts[key];
+
+  // 3. Default prompt
+  return defaultSystemPrompt;
+}
+
 export async function POST(req: Request) {
   const { messages, courseId, persona } = await req.json();
 
-  const key = persona ?? courseId;
-  const system = systemPrompts[key] ?? defaultSystemPrompt;
+  const system = resolveSystemPrompt(persona, courseId);
 
   const result = streamText({
     model: google('models/gemini-2.0-flash'),

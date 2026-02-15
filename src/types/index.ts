@@ -7,7 +7,8 @@ export type ScenarioCategory =
   | 'Digital Marketing'
   | 'AI'
   | 'Social Media'
-  | 'Content Strategy';
+  | 'Content Strategy'
+  | 'Strategy';
 
 export type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
 
