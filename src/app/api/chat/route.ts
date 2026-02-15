@@ -1,4 +1,4 @@
-import { google } from '@ai-sdk/google';
+import { ollama } from 'ollama-ai-provider';
 import { streamText } from 'ai';
 import { getPersonaById } from '@/data/personas';
 
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
   const system = resolveSystemPrompt(persona, courseId);
 
   const result = streamText({
-    model: google('models/gemini-2.0-flash'),
+    model: ollama('mio-chatbot:latest'),
     system,
     messages,
   });

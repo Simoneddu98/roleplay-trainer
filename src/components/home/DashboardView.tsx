@@ -156,6 +156,38 @@ export default function DashboardView({ userEmail }: DashboardViewProps) {
           </div>
         </section>
 
+        {/* Glossario Intelligente */}
+        <section>
+          <button
+            onClick={() => router.push('/glossary')}
+            className="group w-full text-left bg-white/[0.03] rounded-2xl border border-white/[0.06] overflow-hidden
+              hover:bg-white/[0.05] hover:border-violet-500/20 hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+          >
+            <div className="flex flex-col sm:flex-row">
+              <div className="bg-gradient-to-br from-violet-500 to-indigo-600 px-6 py-8 sm:py-0 sm:w-48 flex items-center justify-center relative">
+                <div className="absolute top-2 left-2 w-16 h-16 rounded-full bg-white/10" />
+                <div className="absolute bottom-2 right-2 w-10 h-10 rounded-full bg-white/10" />
+                <BookOpen className="w-12 h-12 text-white relative z-10" />
+              </div>
+              <div className="flex-1 px-6 py-6 flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-white mb-1">Glossario Intelligente</h3>
+                  <p className="text-sm text-slate-500 leading-relaxed">
+                    Esplora oltre 20 termini tecnici di Vendita, Marketing e AI. Filtra per categoria, cerca e ascolta la pronuncia.
+                  </p>
+                  <div className="flex items-center gap-1 mt-3 text-sm font-semibold text-violet-400">
+                    <Sparkles className="w-4 h-4" />
+                    Ricerca e filtri avanzati
+                  </div>
+                </div>
+                <div className="w-10 h-10 rounded-full bg-white/[0.06] flex items-center justify-center group-hover:bg-violet-500/15 transition-colors shrink-0 ml-4">
+                  <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-violet-400 transition-colors" />
+                </div>
+              </div>
+            </div>
+          </button>
+        </section>
+
         {/* Aree corso */}
         <section>
           <div className="flex items-center gap-2 mb-5">

@@ -1,4 +1,4 @@
-import { MessageSquare, Zap } from 'lucide-react';
+import { MessageSquare, Zap, BookOpen, Bot } from 'lucide-react';
 import Link from 'next/link';
 
 interface NavbarProps {
@@ -17,6 +17,17 @@ export default function Navbar({ totalXp }: NavbarProps) {
             Roleplay Trainer
           </span>
         </Link>
+
+        <div className="flex items-center gap-5">
+          <Link href="/glossary" className="text-sm text-slate-400 hover:text-violet-400 transition-colors flex items-center gap-1.5">
+            <BookOpen className="w-4 h-4" />
+            Glossario
+          </Link>
+          <Link href="/chatbot" className="text-sm text-slate-400 hover:text-violet-400 transition-colors flex items-center gap-1.5">
+            <Bot className="w-4 h-4" />
+            Chatbot
+          </Link>
+        </div>
 
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5 bg-violet-500/10 text-violet-400 px-3 py-1.5 rounded-full text-sm font-semibold border border-violet-500/20">
