@@ -1,12 +1,13 @@
-import { createOllama } from 'ollama-ai-provider';
+import { createOpenAI } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 
 // IMPORTANTE: Usa 'nodejs' invece di 'edge' per evitare problemi con localhost
 export const runtime = 'nodejs';
 
-// Configurazione esplicita dell'indirizzo
-const ollama = createOllama({
-  baseURL: 'http://127.0.0.1:11434/api',
+// Ollama espone un endpoint OpenAI-compatibile su /v1
+const ollama = createOpenAI({
+  baseURL: 'http://127.0.0.1:11434/v1',
+  apiKey: 'ollama', // Ollama non richiede API key, ma il campo è obbligatorio
 });
 
 export async function POST(req: Request) {
@@ -15,16 +16,12 @@ export async function POST(req: Request) {
 
     console.log("Tentativo connessione a Ollama con modello: efisio-custom");
 
-    // Chiamata a Ollama
     const result = await streamText({
-      model: ollama('efisio-custom'), // Il tuo modello fine-tunato
+      model: ollama('efisio-custom'),
       messages,
-      // NOTA: Non mettiamo 'system' qui se vuoi usare quello del Modelfile.
-      // Se invece vuoi forzare Efisio Sardo sopra il modello base, decommenta sotto:
-      // system: "Sei Efisio, rispondi in modo breve e sardo.",
     });
 
-    return result.toDataStreamResponse();
+    return result.toUIMessageStreamResponse();
 
   } catch (error) {
     console.error("ERRORE OLLAMA:", error);
