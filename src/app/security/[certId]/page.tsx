@@ -6,6 +6,8 @@ import ScenarioCard from '@/components/dashboard/ScenarioCard';
 import { useAppStore } from '@/store/useStore';
 import { securityAreas } from '@/data/security-areas';
 import { getSecurityScenariosByArea } from '@/data/security-scenarios';
+import { getSecurityBadgesByArea } from '@/data/security-badges';
+import BadgeDisplay from '@/components/ui/BadgeDisplay';
 import { ArrowLeft, Brain, Award, Shield } from 'lucide-react';
 
 export default function SecurityCertPage() {
@@ -22,6 +24,8 @@ export default function SecurityCertPage() {
   }
 
   const scenarios = getSecurityScenariosByArea(certId);
+  const badges = getSecurityBadgesByArea(certId);
+  const unlockedBadgeIds = userProgress.badges.map((b) => b.id);
 
   const handleScenarioClick = (scenarioId: string) => {
     const scenario = scenarios.find((s) => s.id === scenarioId);
@@ -111,10 +115,16 @@ export default function SecurityCertPage() {
               Badge & Riconoscimenti
             </h2>
           </div>
-          <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-6 text-center">
-            <p className="text-sm text-slate-500">
-              Completa quiz e simulazioni per sbloccare i badge di questa certificazione.
-            </p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {badges.map((badge) => (
+              <BadgeDisplay
+                key={badge.id}
+                name={badge.name}
+                description={badge.description}
+                icon={badge.icon}
+                unlocked={unlockedBadgeIds.includes(badge.id)}
+              />
+            ))}
           </div>
         </section>
       </main>

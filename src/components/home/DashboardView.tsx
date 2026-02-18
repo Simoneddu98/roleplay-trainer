@@ -13,7 +13,7 @@ import { SCENARIOS } from '@/data/simulation-scenarios';
 import { GlossaryTerm } from '@/data/glossary';
 import {
   TrendingUp, Sparkles, ChevronRight, BookOpen, CheckCircle2,
-  Brain, Zap, Clapperboard, LogOut, Search, Loader2, X,
+  Brain, Zap, Clapperboard, LogOut, Search, Loader2, X, ShieldCheck,
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -245,6 +245,43 @@ export default function DashboardView({ userEmail }: DashboardViewProps) {
               );
             })}
           </div>
+        </section>
+
+        {/* Corsi sulla Sicurezza */}
+        <section>
+          <button
+            onClick={() => router.push('/security')}
+            className="group w-full text-left bg-white/[0.03] rounded-2xl border border-white/[0.06] overflow-hidden
+              hover:bg-white/[0.05] hover:border-amber-500/20 hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+          >
+            <div className="flex flex-col sm:flex-row">
+              <div className="bg-gradient-to-br from-amber-500 to-orange-600 px-6 py-8 sm:py-0 sm:w-48 flex items-center justify-center relative">
+                <div className="absolute top-2 left-2 w-16 h-16 rounded-full bg-white/10" />
+                <div className="absolute bottom-2 right-2 w-10 h-10 rounded-full bg-white/10" />
+                <ShieldCheck className="w-12 h-12 text-white relative z-10" />
+              </div>
+              <div className="flex-1 px-6 py-6 flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-lg font-bold text-white">Corsi sulla Sicurezza</h3>
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/20">
+                      Nuovo
+                    </span>
+                  </div>
+                  <p className="text-sm text-slate-500 leading-relaxed">
+                    Preparati per le certificazioni ISO 9001, ISO 14001, ISO 45001 e altre norme professionali con quiz e simulazioni di audit.
+                  </p>
+                  <div className="flex items-center gap-1 mt-3 text-sm font-semibold text-amber-400">
+                    <ShieldCheck className="w-4 h-4" />
+                    6 certificazioni disponibili
+                  </div>
+                </div>
+                <div className="w-10 h-10 rounded-full bg-white/[0.06] flex items-center justify-center group-hover:bg-amber-500/15 transition-colors shrink-0 ml-4">
+                  <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-amber-400 transition-colors" />
+                </div>
+              </div>
+            </div>
+          </button>
         </section>
 
         {/* Simulazioni Interattive */}
