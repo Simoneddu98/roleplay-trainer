@@ -8,7 +8,12 @@ export type ScenarioCategory =
   | 'AI'
   | 'Social Media'
   | 'Content Strategy'
-  | 'Strategy';
+  | 'Strategy'
+  | 'Sicurezza'
+  | 'Audit'
+  | 'Compliance'
+  | 'Ambiente'
+  | 'Qualità';
 
 export type DifficultyLevel = 1 | 2 | 3 | 4 | 5;
 
