@@ -2,7 +2,7 @@ export interface Persona {
   id: string;
   name: string;
   role: string;
-  area: 'vendita' | 'digital-marketing' | 'general';
+  area: 'vendita' | 'digital-marketing' | 'general' | 'security';
   description: string;
   systemPrompt: string;
   difficulty: 'facile' | 'medio' | 'difficile';
@@ -83,6 +83,22 @@ export const personas: Persona[] = [
     icon: 'BarChart3',
   },
 ];
+
+// ─── Security Tutor ───────────────────────────────────────────────────────────
+// Nota: il systemPrompt di base viene usato come fallback dall'API.
+// Il prompt completo con knowledge injection è generato da buildSecuritySystemPrompt().
+export const securityTutorPersona: Persona = {
+  id: 'security-tutor',
+  name: 'SafetyTutor',
+  role: 'Esperto certificazioni ISO/UNI',
+  area: 'security',
+  description:
+    'Tutor specializzato nelle 6 certificazioni di sicurezza: ISO 9001, 14001, 45001, UNI 13549, ISO 14064, UNI 16636. Ti guida con spiegazioni chiare ed esempi pratici.',
+  systemPrompt:
+    'Sei SafetyTutor, un esperto di certificazioni ISO/UNI. Rispondi in italiano con spiegazioni chiare, esempi pratici e cita sempre la clausola specifica della norma. Incoraggia e proponi domande di verifica.',
+  difficulty: 'medio',
+  icon: 'Shield',
+};
 
 export function getPersonaById(id: string): Persona | undefined {
   return personas.find((p) => p.id === id);

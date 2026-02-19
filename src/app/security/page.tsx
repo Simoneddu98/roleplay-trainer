@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Navbar from '@/components/layout/Navbar';
+import EfisioAssistant from '@/components/EfisioAssistant';
 import { useAppStore } from '@/store/useStore';
 import { securityAreas } from '@/data/security-areas';
 import { Shield, ChevronRight, Award } from 'lucide-react';
@@ -80,6 +81,9 @@ export default function SecurityPage() {
           </p>
         </div>
       </main>
+
+      {/* SafetyTutor in modalità generica security */}
+      <EfisioAssistant certTitle="Certificazioni ISO/UNI" />
     </div>
   );
 }

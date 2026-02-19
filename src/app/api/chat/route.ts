@@ -1,6 +1,11 @@
 import { createOpenAI } from '@ai-sdk/openai';
 import { streamText, convertToModelMessages, type UIMessage } from 'ai';
 import { getPersonaById } from '@/data/personas';
+import { buildSecuritySystemPrompt } from '@/data/security-knowledge';
+
+const SECURITY_AREA_IDS = new Set([
+  'iso-9001', 'iso-14001', 'iso-45001', 'uni-13549', 'iso-14064', 'uni-16636',
+]);
 
 // IMPORTANTE: Usa 'nodejs' invece di 'edge' per evitare problemi con localhost
 export const runtime = 'nodejs';
@@ -14,6 +19,11 @@ const ollama = createOpenAI({
 
 // System prompts per area o persona
 function resolveSystemPrompt(persona?: string, courseId?: string): string {
+  // ✅ Security Tutor: usa knowledge base completa
+  if (persona === 'security-tutor') {
+    return buildSecuritySystemPrompt(courseId);
+  }
+
   // Se c'è una persona specifica, usa il suo prompt
   if (persona) {
     if (persona === 'efisio') {
@@ -23,7 +33,7 @@ function resolveSystemPrompt(persona?: string, courseId?: string): string {
     if (found) return found.systemPrompt;
   }
 
-  // Se c'è un courseId, usa il prompt dell'area
+  // Se c'è un courseId per area standard
   if (courseId === 'vendita') {
     return "Sei Marco, un cliente aziendale scettico ma aperto al dialogo. Stai valutando se acquistare un servizio/prodotto. Fai obiezioni realistiche, chiedi dettagli concreti e metti alla prova il venditore. Rispondi sempre in italiano.";
   }
@@ -31,24 +41,10 @@ function resolveSystemPrompt(persona?: string, courseId?: string): string {
     return "Sei Giulia, Head of Growth di una startup. Parli di strategie digitali con competenza, usi terminologia tecnica (SEO, CRO, funnel, ROAS) e ti aspetti risposte data-driven. Rispondi sempre in italiano.";
   }
 
-  // Prompts fallback per le aree security (usati solo se il frontend non passa systemPrompt)
-  if (courseId === 'iso-9001') {
-    return "Sei un personaggio in una simulazione di formazione ISO 9001:2015. Interpreti il ruolo assegnato nel contesto dello scenario (responsabile di reparto, auditor, ecc.). Rispondi in italiano in modo realistico e professionale, mantenendo il tuo personaggio con le sue caratteristiche (difensivo, scettico, collaborativo, ecc.) come descritto nello scenario. Non uscire dal personaggio.";
-  }
-  if (courseId === 'iso-14001') {
-    return "Sei un personaggio in una simulazione di formazione ISO 14001:2015 gestione ambientale. Interpreti il ruolo assegnato (responsabile HSE, capo reparto, ecc.). Rispondi in italiano in modo realistico, mantenendo le caratteristiche del tuo personaggio. Non uscire dal personaggio.";
-  }
-  if (courseId === 'iso-45001') {
-    return "Sei un personaggio in una simulazione di formazione ISO 45001:2018 salute e sicurezza sul lavoro. Interpreti il ruolo assegnato (capocantiere, capo magazzino, ecc.). Rispondi in italiano in modo realistico, mantenendo le caratteristiche del tuo personaggio. Non uscire dal personaggio.";
-  }
-  if (courseId === 'uni-13549') {
-    return "Sei un personaggio in una simulazione di formazione UNI EN 13549:2003 servizi di pulizia. Interpreti il ruolo assegnato (referente cliente, responsabile qualità, ecc.). Rispondi in italiano in modo realistico, mantenendo le caratteristiche del tuo personaggio. Non uscire dal personaggio.";
-  }
-  if (courseId === 'iso-14064') {
-    return "Sei un personaggio in una simulazione di formazione ISO 14064-1 emissioni GHG. Interpreti il ruolo assegnato (CFO, responsabile ambiente, ecc.). Rispondi in italiano in modo realistico, mantenendo le caratteristiche del tuo personaggio. Non uscire dal personaggio.";
-  }
-  if (courseId === 'uni-16636') {
-    return "Sei un personaggio in una simulazione di formazione UNI EN 16636 pest management. Interpreti il ruolo assegnato (responsabile qualità, direttore hotel, ecc.). Rispondi in italiano in modo realistico, mantenendo le caratteristiche del tuo personaggio. Non uscire dal personaggio.";
+  // ✅ Scenari security roleplay: prompt già passato dal frontend nel body.systemPrompt
+  // Questo fallback è usato solo se per qualche motivo non arriva dal frontend.
+  if (courseId && SECURITY_AREA_IDS.has(courseId)) {
+    return buildSecuritySystemPrompt(courseId);
   }
 
   // Fallback generico

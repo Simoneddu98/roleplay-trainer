@@ -4,20 +4,26 @@ import { useState } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import { useRouter } from 'next/navigation';
-import { Send, Bot, User, ArrowLeft, Loader2, MessageSquare } from 'lucide-react';
+import { Send, Bot, User, ArrowLeft, Loader2, MessageSquare, Shield } from 'lucide-react';
 import { useEffect, useRef } from 'react';
-import { personas, type Persona } from '@/data/personas';
+import { personas, securityTutorPersona, type Persona } from '@/data/personas';
+import { getQuickChips, buildSecuritySystemPrompt } from '@/data/security-knowledge';
 
 export default function ChatbotPage() {
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [selectedPersona, setSelectedPersona] = useState<string>('efisio');
 
+  const isSecurityTutor = selectedPersona === 'security-tutor';
+  const securitySystemPrompt = isSecurityTutor ? buildSecuritySystemPrompt() : undefined;
+
   const { messages, sendMessage, status, setMessages } = useChat({
     id: `chatbot-${selectedPersona}`,
     transport: new DefaultChatTransport({
       api: '/api/chat',
-      body: { persona: selectedPersona },
+      body: isSecurityTutor
+        ? { persona: 'security-tutor', systemPrompt: securitySystemPrompt }
+        : { persona: selectedPersona },
     }),
   });
 
@@ -30,8 +36,8 @@ export default function ChatbotPage() {
     }
   }, [messages]);
 
-  const handleSend = () => {
-    const trimmed = input.trim();
+  const handleSend = (text?: string) => {
+    const trimmed = (text ?? input).trim();
     if (!trimmed || isStreaming) return;
     sendMessage({ text: trimmed });
     setInput('');
@@ -44,14 +50,18 @@ export default function ChatbotPage() {
 
   const currentPersona = personas.find((p) => p.id === selectedPersona);
 
-  const personaOptions: { id: string; name: string; icon: string }[] = [
+  const personaOptions: { id: string; name: string; icon: string; isSecurity?: boolean }[] = [
     { id: 'efisio', name: 'Efisio (Tutor)', icon: '🤖' },
+    { id: 'security-tutor', name: 'SafetyTutor', icon: '🛡️', isSecurity: true },
     ...personas.map((p) => ({
       id: p.id,
       name: p.name,
       icon: p.difficulty === 'difficile' ? '🔴' : p.difficulty === 'medio' ? '🟡' : '🟢',
     })),
   ];
+
+  // Chip suggerimento per SafetyTutor
+  const securityChips = isSecurityTutor ? getQuickChips() : [];
 
   return (
     <div className="flex flex-col h-screen bg-[#06060a]">
@@ -87,7 +97,9 @@ export default function ChatbotPage() {
               onClick={() => handlePersonaChange(p.id)}
               className={`shrink-0 text-xs px-3 py-1.5 rounded-full border transition-all cursor-pointer
                 ${selectedPersona === p.id
-                  ? 'bg-violet-600 text-white border-violet-500'
+                  ? p.isSecurity
+                    ? 'bg-amber-600 text-white border-amber-500'
+                    : 'bg-violet-600 text-white border-violet-500'
                   : 'bg-white/[0.03] text-slate-400 border-white/[0.06] hover:bg-white/[0.06] hover:text-white'
                 }`}
             >
@@ -101,18 +113,43 @@ export default function ChatbotPage() {
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-6">
         <div className="max-w-3xl mx-auto space-y-4">
           {messages.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-violet-600/20 to-purple-600/20 rounded-2xl flex items-center justify-center mb-4 border border-violet-500/10">
-                <Bot className="w-8 h-8 text-violet-400" />
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 border
+                ${isSecurityTutor
+                  ? 'bg-gradient-to-br from-amber-500/20 to-orange-600/20 border-amber-500/10'
+                  : 'bg-gradient-to-br from-violet-600/20 to-purple-600/20 border-violet-500/10'
+                }`}>
+                {isSecurityTutor
+                  ? <Shield className="w-8 h-8 text-amber-400" />
+                  : <Bot className="w-8 h-8 text-violet-400" />
+                }
               </div>
               <h2 className="text-lg font-semibold text-white mb-2">
-                {selectedPersona === 'efisio' ? 'Ciao! Sono Efisio' : currentPersona?.name}
+                {isSecurityTutor ? 'SafetyTutor' : selectedPersona === 'efisio' ? 'Ciao! Sono Efisio' : currentPersona?.name}
               </h2>
-              <p className="text-sm text-slate-500 max-w-sm">
-                {selectedPersona === 'efisio'
-                  ? 'Il tuo tutor AI per Vendita e Marketing. Scrivimi qualsiasi domanda!'
-                  : currentPersona?.description}
+              <p className="text-sm text-slate-500 max-w-sm mb-6">
+                {isSecurityTutor
+                  ? 'Il tuo esperto di certificazioni ISO/UNI. Chiedimi delle normative, preparati all\'audit o fai un ripasso!'
+                  : selectedPersona === 'efisio'
+                    ? 'Il tuo tutor AI per Vendita e Marketing. Scrivimi qualsiasi domanda!'
+                    : currentPersona?.description}
               </p>
+
+              {/* Chip suggerimento SafetyTutor */}
+              {securityChips.length > 0 && (
+                <div className="flex flex-wrap justify-center gap-2 max-w-sm">
+                  {securityChips.map((chip) => (
+                    <button
+                      key={chip}
+                      onClick={() => handleSend(chip)}
+                      className="text-xs px-3.5 py-2 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300
+                        hover:bg-amber-500/20 transition-all cursor-pointer font-medium"
+                    >
+                      {chip}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -189,7 +226,7 @@ export default function ChatbotPage() {
               disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
           />
           <button
-            onClick={handleSend}
+            onClick={() => handleSend()}
             disabled={!input.trim() || isStreaming}
             className="shrink-0 w-11 h-11 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 text-white flex items-center justify-center
               hover:from-violet-500 hover:to-purple-500 shadow-lg shadow-violet-500/25

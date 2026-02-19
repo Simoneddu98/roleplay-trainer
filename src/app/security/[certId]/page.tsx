@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 import ScenarioCard from '@/components/dashboard/ScenarioCard';
+import EfisioAssistant from '@/components/EfisioAssistant';
 import { useAppStore } from '@/store/useStore';
 import { securityAreas } from '@/data/security-areas';
 import { getSecurityScenariosByArea } from '@/data/security-scenarios';
@@ -132,6 +133,9 @@ export default function SecurityCertPage() {
           </div>
         </section>
       </main>
+
+      {/* SafetyTutor contestuale per questa certificazione */}
+      <EfisioAssistant certId={certId} certTitle={area.title} />
     </div>
   );
 }
