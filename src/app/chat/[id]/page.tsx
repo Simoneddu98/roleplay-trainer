@@ -5,7 +5,13 @@ import { useState, useEffect, useRef } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import { allScenarios } from '@/data/scenarios';
+import { allSecurityScenarios } from '@/data/security-scenarios';
 import { ArrowLeft, Send, Bot, User, Loader2 } from 'lucide-react';
+
+// Security area ids per rilevare il back URL corretto
+const SECURITY_AREA_IDS = new Set([
+  'iso-9001', 'iso-14001', 'iso-45001', 'uni-13549', 'iso-14064', 'uni-16636',
+]);
 
 export default function ChatPage() {
   const params = useParams();
@@ -14,14 +20,22 @@ export default function ChatPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [input, setInput] = useState('');
 
-  const scenario = allScenarios.find((s) => s.id === scenarioId);
+  // ✅ FIX: include scenari security nel lookup
+  const scenario =
+    allScenarios.find((s) => s.id === scenarioId) ??
+    allSecurityScenarios.find((s) => s.id === scenarioId);
+
   const courseId = scenario?.areaId ?? '';
+
+  // ✅ FIX: estrae il system prompt dall'initialMessage per passarlo all'API
+  const systemPrompt = scenario?.initialMessages.find((m) => m.role === 'system')?.content;
 
   const { messages, sendMessage, status } = useChat({
     id: scenarioId,
     transport: new DefaultChatTransport({
       api: '/api/chat',
-      body: { courseId },
+      // ✅ FIX: passa systemPrompt estratto dallo scenario per prompt corretti
+      body: { courseId, ...(systemPrompt ? { systemPrompt } : {}) },
     }),
     messages: scenario
       ? scenario.initialMessages
@@ -65,7 +79,10 @@ export default function ChatPage() {
     );
   }
 
-  const backUrl = `/area/${scenario.areaId}`;
+  // ✅ FIX: back URL corretto per scenari security vs corsi standard
+  const backUrl = SECURITY_AREA_IDS.has(scenario.areaId)
+    ? `/security/${scenario.areaId}`
+    : `/area/${scenario.areaId}`;
 
   return (
     <div className="flex flex-col h-screen bg-slate-50">

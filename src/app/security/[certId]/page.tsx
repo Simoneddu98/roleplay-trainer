@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 import ScenarioCard from '@/components/dashboard/ScenarioCard';
@@ -18,10 +19,13 @@ export default function SecurityCertPage() {
   const { userProgress } = state;
 
   const area = securityAreas.find((a) => a.id === certId);
-  if (!area) {
-    router.push('/security');
-    return null;
-  }
+
+  // ✅ FIX: spostato in useEffect — router.push durante render viola React
+  useEffect(() => {
+    if (!area) router.push('/security');
+  }, [area, router]);
+
+  if (!area) return null;
 
   const scenarios = getSecurityScenariosByArea(certId);
   const badges = getSecurityBadgesByArea(certId);
