@@ -26,7 +26,7 @@ export default function EfisioAssistant({ certId, certTitle }: EfisioAssistantPr
 
   // ─── Welcome message adattivo ───────────────────────────────────────────────
   const welcomeText = isSecurityMode
-    ? `Ciao! Sono SafetyTutor, il tuo esperto di ${certTitle ?? 'certificazioni ISO/UNI'}. Chiedimi definizioni, differenze tra clausole, consigli per l'audit o preparati al quiz!`
+    ? `Ciao! Sono Gavino, il tuo esperto di ${certTitle ?? 'certificazioni ISO/UNI'}. Chiedimi definizioni, differenze tra clausole, consigli per l'audit o preparati al quiz!`
     : 'Eja! Ciao, sono Efisio, il tuo tutor personale. Chiedimi qualsiasi cosa su Vendita, Marketing o le simulazioni. Ajò, iniziamo!';
 
   const welcomeMessage = {
@@ -44,7 +44,7 @@ export default function EfisioAssistant({ certId, certTitle }: EfisioAssistantPr
     transport: new DefaultChatTransport({
       api: '/api/chat',
       body: isSecurityMode
-        ? { persona: 'security-tutor', courseId: certId, systemPrompt: securitySystemPrompt }
+        ? { persona: 'gavino', courseId: certId, systemPrompt: securitySystemPrompt }
         : { persona: 'efisio' },
     }),
   });
@@ -107,10 +107,10 @@ export default function EfisioAssistant({ certId, certTitle }: EfisioAssistantPr
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-white">
-                  {isSecurityMode ? 'SafetyTutor' : 'Efisio'}
+                  {isSecurityMode ? 'Gavino' : 'Efisio'}
                 </h3>
                 <p className="text-[11px] text-white/70">
-                  {isSecurityMode ? 'Tutor Certificazioni ISO/UNI' : 'Il tuo Tutor'}
+                  {isSecurityMode ? 'Esperto Sicurezza ISO/UNI' : 'Il tuo Tutor'}
                 </p>
               </div>
             </div>

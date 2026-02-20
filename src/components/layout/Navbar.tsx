@@ -1,4 +1,4 @@
-import { MessageSquare, Zap, BookOpen, Bot } from 'lucide-react';
+import { MessageSquare, Zap, BookOpen, Bot, Shield } from 'lucide-react';
 import Link from 'next/link';
 
 interface NavbarProps {
@@ -23,9 +23,13 @@ export default function Navbar({ totalXp }: NavbarProps) {
             <BookOpen className="w-4 h-4" />
             Glossario
           </Link>
-          <Link href="/chatbot" className="text-sm text-slate-400 hover:text-violet-400 transition-colors flex items-center gap-1.5">
+          <Link href="/chatbot/efisio" className="text-sm text-slate-400 hover:text-violet-400 transition-colors flex items-center gap-1.5">
             <Bot className="w-4 h-4" />
-            Chatbot
+            Efisio
+          </Link>
+          <Link href="/chatbot/gavino" className="text-sm text-slate-400 hover:text-amber-400 transition-colors flex items-center gap-1.5">
+            <Shield className="w-4 h-4" />
+            Gavino
           </Link>
         </div>
 
